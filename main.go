@@ -44,12 +44,12 @@ func main() {
 	c.OneStruct = model.CDetailPub
 
 	router := gin.Default()
-	router.GET("/script", t.List())
-	router.GET("/js", j.List())
+	router.GET("/script", t.List(provider.Mysql))
+	router.GET("/js", j.List(provider.Mysql))
 	router.GET("/js/detail", d.FindByID())
-	router.GET("/comment", c.List())
+	router.GET("/comment", c.List(provider.Mysql))
 	router.GET("/comment/detail", c.FindByID())
-
-	log.Fatal(router.Run(":88"))
+	router.GET("/script/vague", t.List(provider.Es))
+	log.Fatal(router.Run(":8081"))
 
 }

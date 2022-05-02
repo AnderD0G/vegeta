@@ -16,7 +16,7 @@ func (t *Journey) FindByID(context *gin.Context) (model.JourneyDis, error) {
 	//return model.Script{Name: "luiz"}, nil
 }
 
-func (s *Journey) List(c *gin.Context) ([]model.JourneyDis, error) {
+func (s *Journey) List(c *gin.Context, typ string) ([]model.JourneyDis, error) {
 	//todo:set default
 	long := c.DefaultQuery("long", "")
 	lat := c.DefaultQuery("lat", "")
@@ -50,7 +50,7 @@ func (t *Detail) FindByID(context *gin.Context) (model.JourneyPerson, error) {
 	return *m, nil
 }
 
-func (s *Detail) List(c *gin.Context) ([]model.JourneyPerson, error) {
+func (s *Detail) List(c *gin.Context, typ string) ([]model.JourneyPerson, error) {
 
 	panic("implement me")
 }

@@ -12,7 +12,3 @@ type (
 func (m *Tag) TableName() string {
 	return "tag"
 }
-
-type Model interface {
-	Tag | Script | Category | JourneyDis | JourneyPerson | Comment
-}

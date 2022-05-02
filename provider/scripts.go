@@ -17,24 +17,40 @@ type Scripts struct {
 	S           *pkg.Inquirer[*model.Script]
 }
 
-func (t *Scripts) FindByID(context *gin.Context) (model.Script, error) {
-	panic("implement me")
-	//return model.Script{Name: "luiz"}, nil
+func (s *Scripts) List(c *gin.Context, typ string) ([]model.Script, error) {
+	switch typ {
+	case Es:
+		return s.esList(c)
+	case Mysql:
+		return s.msList(c)
+	default:
+		return nil, errors.New("UnExcepted type")
+	}
 }
 
-func (s *Scripts) List(c *gin.Context) ([]model.Script, error) {
+//getListFromMysql
+func (s *Scripts) esList(c *gin.Context) ([]model.Script, error) {
+	keyword := c.DefaultQuery("key", "")
+	from := c.DefaultQuery("page", "1")
 
-	page := c.DefaultQuery("page", "1")
-	size := c.DefaultQuery("size", "10")
-	query := c.DefaultQuery("query", "")
+	return model.GetMultiMatch(model.Script{}.Index(), keyword, pkg.Ati(from), []string{"script_name", "script_text_context"})
+}
 
-	s.QueryMap.Condition = query
-	s.QueryMap.Page = pkg.Ati(page)
-	s.QueryMap.Size = pkg.Ati(size)
+//getListFromMysql
+func (s *Scripts) msList(c *gin.Context) ([]model.Script, error) {
+	if c != nil {
+		page := c.DefaultQuery("page", "1")
+		size := c.DefaultQuery("size", "10")
+		query := c.DefaultQuery("query", "")
+
+		s.QueryMap.Condition = query
+		s.QueryMap.Page = pkg.Ati(page)
+		s.QueryMap.Size = pkg.Ati(size)
+	}
 
 	t := new(Tag)
 
-	err := pkg.Run(2*time.Second, c, s, t)
+	err := pkg.Run(10*time.Second, c, s, t)
 	if err != nil {
 		return nil, err
 	}
@@ -62,21 +78,6 @@ func (s *Scripts) List(c *gin.Context) ([]model.Script, error) {
 	return scripts, err
 }
 
-func (t *Scripts) Update(id string, model model.Script) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (t *Scripts) Insert(model model.Script) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (t *Scripts) Delete(id string) error {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (s *Scripts) Work(ctx context.Context, finishChan chan<- pkg.Finish) {
 	go pkg.Watcher(ctx, finishChan)
 	i := new([]model.Script)
@@ -98,4 +99,24 @@ func (s *Scripts) Work(ctx context.Context, finishChan chan<- pkg.Finish) {
 		IsDone: true,
 		Err:    nil,
 	})
+}
+
+func (t *Scripts) FindByID(context *gin.Context) (model.Script, error) {
+	panic("implement me")
+	//return model.Script{Name: "luiz"}, nil
+}
+
+func (t *Scripts) Update(id string, model model.Script) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (t *Scripts) Insert(model model.Script) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (t *Scripts) Delete(id string) error {
+	//TODO implement me
+	panic("implement me")
 }

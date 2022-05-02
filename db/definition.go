@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"github.com/olivere/elastic/v7"
 	"go/types"
 	"gorm.io/gorm"
 	"log"
@@ -13,7 +14,7 @@ type DB[MODEL Sample] struct {
 }
 
 type Sample interface {
-	*gorm.DB | types.Nil
+	*gorm.DB | types.Nil | *elastic.Client
 }
 
 type Provider[MODEL Sample] interface {

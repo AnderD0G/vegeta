@@ -5,29 +5,34 @@ import (
 	ctxLogger "github.com/luizsuper/ctxLoggers"
 	"go.uber.org/zap"
 	"net/http"
-	"vegeta/model"
+)
+
+const (
+	Mysql = "mysql"
+	Es    = "es"
 )
 
 type (
-	Provider[MODEL model.Model] interface {
+	Provider[MODEL any] interface {
 		FindByID(context *gin.Context) (MODEL, error)
-		List(context *gin.Context) ([]MODEL, error)
+		// List @typ:指定查询的typ，目前支持mysql与es
+		List(context *gin.Context, typ string) ([]MODEL, error)
 		Update(id string, model MODEL) error
 		Insert(model MODEL) error
 		Delete(id string) error
 	}
 
-	HTTPHandler[MODEL model.Model] struct {
+	HTTPHandler[MODEL any] struct {
 		Provider   Provider[MODEL]
 		ListStruct func(new *[]MODEL) (error, interface{})
 		OneStruct  func(new *MODEL) (error, interface{})
 	}
 )
 
-func (h *HTTPHandler[MODEL]) List() gin.HandlerFunc {
+func (h *HTTPHandler[MODEL]) List(typ string) gin.HandlerFunc {
 
 	return func(context *gin.Context) {
-		if r, err := h.Provider.List(context); err != nil {
+		if r, err := h.Provider.List(context, typ); err != nil {
 			ctxLogger.Error(nil, "500", zap.String("err", err.Error()))
 			context.JSON(http.StatusInternalServerError, nil)
 			return

@@ -1,8 +1,12 @@
 package model
 
 import (
+	"context"
 	"database/sql/driver"
 	"encoding/json"
+	"github.com/olivere/elastic/v7"
+	"reflect"
+	"vegeta/db"
 )
 
 type (
@@ -32,6 +36,10 @@ type Script struct {
 	Tags                  strSlice `json:"script_tags" gorm:"-"`
 }
 
+func (m Script) Index() string {
+	return "scripts"
+}
+
 func (m *Script) TableName() string {
 	return "scripts"
 }
@@ -50,4 +58,24 @@ func (p strSlice) Value() (driver.Value, error) {
 
 func (p *strSlice) Scan(input interface{}) error {
 	return json.Unmarshal(input.([]byte), &p)
+}
+
+func (m *Script) Search() string {
+	return "scripts"
+}
+
+func GetMultiMatch(index, keyword string, page int, fields []string) ([]Script, error) {
+	size := 20
+	query := elastic.NewMultiMatchQuery(keyword, fields...)
+	resp, err := db.GetES().Search().Index(index).Query(query).From(page).Size(size).Do(context.TODO())
+	if err != nil {
+		return nil, err
+	}
+	scripts := make([]Script, 0)
+	script := Script{}
+	for _, v := range resp.Each(reflect.TypeOf(script)) {
+		s := v.(Script)
+		scripts = append(scripts, s)
+	}
+	return scripts, nil
 }

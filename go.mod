@@ -5,7 +5,8 @@ go 1.18
 require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/jinzhu/copier v0.3.5
-	github.com/pkg/errors v0.8.1
+	github.com/olivere/elastic/v7 v7.0.32
+	github.com/pkg/errors v0.9.1
 	go.uber.org/zap v1.19.1
 	gorm.io/driver/mysql v1.3.3
 	gorm.io/gorm v1.23.4
@@ -14,9 +15,12 @@ require (
 require (
 	github.com/andybalholm/brotli v1.0.2 // indirect
 	github.com/gofiber/fiber/v2 v2.23.0 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/josharian/intern v1.0.0 // indirect
 	github.com/klauspost/compress v1.13.4 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible // indirect
 	github.com/lestrrat-go/strftime v1.0.5 // indirect
+	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.31.0 // indirect
 	github.com/valyala/tcplisten v1.0.0 // indirect

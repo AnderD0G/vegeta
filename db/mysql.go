@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -17,9 +18,14 @@ func (g *MysqlPro) initial() error {
 	if err != nil {
 		return err
 	}
-	g.m = make(map[string]*gorm.DB)
-	g.m["1"] = db
-	return nil
+
+	if g.m == nil {
+		g.m = make(map[string]*gorm.DB)
+		g.m["1"] = db
+		return nil
+	}
+
+	return errors.New("resource has been initialized")
 
 }
 
