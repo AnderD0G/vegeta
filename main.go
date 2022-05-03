@@ -13,7 +13,7 @@ import (
 func init() {
 	d := db.DB[*gorm.DB]{}
 
-	d.Provider = &db.MysqlPro{Address: "root:Caoxinguan2022@tcp(rm-bp1r6329yn2fo03902o.mysql.rds.aliyuncs.com:3306)/taihe"}
+	d.Provider = &db.MysqlPro{Address: "root:Caoxinguan2022@tcp(rm-bp1r6329yn2fo0390.mysql.rds.aliyuncs.com:3306)/taihe"}
 
 	d.Initial()
 
