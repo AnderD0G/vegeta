@@ -6,9 +6,9 @@ import (
 )
 
 const (
-	secret = `gpv0cIFM7ES2quWOht50KXMa`
+	secret = `Lht86052516`
 	user   = `elastic`
-	url    = `https://my-deployment-d794e9.es.us-central1.gcp.cloud.es.io:9243`
+	url    = `es-cn-i7m2ofsnx000da6gn.public.elasticsearch.aliyuncs.com:9200`
 )
 
 var es ESPro
@@ -34,7 +34,7 @@ type ESPro struct {
 func (e *ESPro) initial() {
 	sniffOpt := elastic.SetSniff(false)
 
-	options := []elastic.ClientOptionFunc{sniffOpt, elastic.SetURL(e.Info.Address), elastic.SetBasicAuth(e.Info.User, e.Info.Secret)}
+	options := []elastic.ClientOptionFunc{sniffOpt, elastic.SetURL("http://es-cn-i7m2ofsnx000da6gn.public.elasticsearch.aliyuncs.com:9200"), elastic.SetBasicAuth("elastic", "Lht86052516")}
 
 	client, err := elastic.NewClient(options...)
 	if err != nil {
