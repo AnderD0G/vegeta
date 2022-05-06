@@ -53,17 +53,21 @@ func (s *Comment) List(c *gin.Context, typ string) ([]model.Comment, error) {
 	return comments, nil
 }
 
-func (t *Comment) Update(id string, model model.Comment) error {
+func (t *Comment) Update(context *gin.Context, id string, model model.Comment) error {
+
 	//TODO implement me
 	panic("implement me")
 }
 
-func (t *Comment) Insert(model model.Comment) error {
+func (t *Comment) Insert(c *gin.Context, model model.Comment) error {
+
+	//reply := c.PostForm("reply")
+
 	//TODO implement me
 	panic("implement me")
 }
 
-func (t *Comment) Delete(id string) error {
+func (t *Comment) Delete(context *gin.Context, id string) error {
 	//TODO implement me
 	panic("implement me")
 }

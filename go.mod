@@ -3,7 +3,9 @@ module vegeta
 go 1.18
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.7
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/jinzhu/copier v0.3.5
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/pkg/errors v0.9.1
@@ -14,6 +16,8 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.2 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gofiber/fiber/v2 v2.23.0 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -46,5 +50,5 @@ require (
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
 	golang.org/x/sys v0.0.0-20220405210540-1e041c57c461 // indirect
-	gopkg.in/yaml.v2 v2.2.8 // indirect
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

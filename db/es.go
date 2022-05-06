@@ -6,6 +6,7 @@ import (
 )
 
 const (
+	//todo:配置化
 	secret = `Lht86052516`
 	user   = `elastic`
 	url    = `es-cn-i7m2ofsnx000da6gn.public.elasticsearch.aliyuncs.com:9200`

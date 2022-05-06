@@ -1,7 +1,9 @@
 package provider
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	ctxLogger "github.com/luizsuper/ctxLoggers"
 	"go.uber.org/zap"
 	"net/http"
@@ -17,19 +19,19 @@ type (
 		FindByID(context *gin.Context) (MODEL, error)
 		// List @typ:指定查询的typ，目前支持mysql与es
 		List(context *gin.Context, typ string) ([]MODEL, error)
-		Update(id string, model MODEL) error
-		Insert(model MODEL) error
-		Delete(id string) error
+		Update(context *gin.Context, id string, model MODEL) error
+		Insert(context *gin.Context, model MODEL) error
+		Delete(context *gin.Context, id string) error
 	}
 
-	HTTPHandler[MODEL any] struct {
+	APIHandler[MODEL any] struct {
 		Provider   Provider[MODEL]
 		ListStruct func(new *[]MODEL) (error, interface{})
 		OneStruct  func(new *MODEL) (error, interface{})
 	}
 )
 
-func (h *HTTPHandler[MODEL]) List(typ string) gin.HandlerFunc {
+func (h *APIHandler[MODEL]) List(typ string) gin.HandlerFunc {
 
 	return func(context *gin.Context) {
 		if r, err := h.Provider.List(context, typ); err != nil {
@@ -52,7 +54,7 @@ func (h *HTTPHandler[MODEL]) List(typ string) gin.HandlerFunc {
 	}
 }
 
-func (h *HTTPHandler[MODEL]) FindByID() gin.HandlerFunc {
+func (h *APIHandler[MODEL]) FindByID() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		if r, err := h.Provider.FindByID(context); err != nil {
 			ctxLogger.Error(nil, "500", zap.String("err", err.Error()))
@@ -71,4 +73,62 @@ func (h *HTTPHandler[MODEL]) FindByID() gin.HandlerFunc {
 		}
 	}
 
+}
+
+type (
+	LoginHandler[token jwt.Claims] struct {
+		JWTGenerator[token]
+	}
+)
+
+var (
+	validate = validator.New()
+)
+
+// WxMiniLogin 微信小程序登录
+func (h *LoginHandler[token]) WxMiniLogin() gin.HandlerFunc {
+
+	return func(c *gin.Context) {
+		code := c.Query("code")
+
+		if err := validate.Var(code, "required"); err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		var (
+			token     token
+			jwtString string
+			err       error
+		)
+
+		//first step 根据openId 生成jwt.claims
+		if token, err = h.JWTGenerator.generate(c); err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		//second step 存入jwt.claims
+		if err = h.JWTGenerator.save(token); err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+		//third step 根据jwt.claims 生成jwtstring
+		if jwtString, err = h.JWTGenerator.get(token); err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		c.Header("token", jwtString)
+		c.Status(http.StatusOK)
+		return
+
+	}
+
+}
+
+func Login() gin.HandlerFunc {
+
+	return func(c *gin.Context) {
+
+	}
 }

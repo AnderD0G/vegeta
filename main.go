@@ -13,7 +13,7 @@ import (
 func init() {
 	d := db.DB[*gorm.DB]{}
 
-	d.Provider = &db.MysqlPro{Address: "root:Caoxinguan2022@tcp(rm-bp1r6329yn2fo0390.mysql.rds.aliyuncs.com:3306)/taihe"}
+	d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo0390.mysql.rds.aliyuncs.com:3306)/taihe"}
 
 	d.Initial()
 
@@ -22,19 +22,19 @@ func init() {
 func main() {
 	tai := db.GetMysql("1")
 
-	t := new(provider.HTTPHandler[model.Script])
+	t := new(provider.APIHandler[model.Script])
 	t.Provider = &provider.Scripts{QueryMap: new(pkg.Query), S: &pkg.Inquirer[*model.Script]{
 		M:  new(model.Script),
 		Db: tai,
 	}}
 
-	j := new(provider.HTTPHandler[model.JourneyDis])
+	j := new(provider.APIHandler[model.JourneyDis])
 	j.Provider = &provider.Journey{}
 
-	d := new(provider.HTTPHandler[model.JourneyPerson])
+	d := new(provider.APIHandler[model.JourneyPerson])
 	d.Provider = &provider.Detail{}
 
-	c := new(provider.HTTPHandler[model.Comment])
+	c := new(provider.APIHandler[model.Comment])
 	c.Provider = &provider.Comment{Query: new(pkg.Query), I: &pkg.Inquirer[*model.Comment]{
 		M:  new(model.Comment),
 		Db: tai,
@@ -43,6 +43,14 @@ func main() {
 	c.ListStruct = model.CommentsPub
 	c.OneStruct = model.CDetailPub
 
+	l := new(provider.LoginHandler[provider.WxToken])
+	l.JWTGenerator = provider.WxTokenGen{
+		Query: new(pkg.Query), I: &pkg.Inquirer[*model.User]{
+			M:  new(model.User),
+			Db: tai,
+		},
+	}
+
 	router := gin.Default()
 	router.GET("/script", t.List(provider.Mysql))
 	router.GET("/js", j.List(provider.Mysql))
@@ -50,6 +58,7 @@ func main() {
 	router.GET("/comment", c.List(provider.Mysql))
 	router.GET("/comment/detail", c.FindByID())
 	router.GET("/script/vague", t.List(provider.Es))
+	router.GET("/login", l.WxMiniLogin())
 	log.Fatal(router.Run(":8081"))
 
 }

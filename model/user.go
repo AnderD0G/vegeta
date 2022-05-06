@@ -2,7 +2,9 @@ package model
 
 import (
 	"context"
+	"gorm.io/gorm"
 	db2 "vegeta/db"
+	"vegeta/pkg"
 )
 
 type (
@@ -14,9 +16,9 @@ type (
 	}
 	User struct {
 		UserPub
-		Openid     string `json:"-" gorm:"column:openid"`      // 用户唯一标识
-		SessionKey string `json:"-" gorm:"column:session_key"` // 会话密钥
-		TypeId     string `json:"-" gorm:"column:typeid"`      //  对应的某个小程序
+		Openid     string `json:"open_id" gorm:"column:openid"`          // 用户唯一标识
+		SessionKey string `json:"session_key" gorm:"column:session_key"` // 会话密钥
+		TypeId     string `json:"type_id" gorm:"column:typeid"`          //  对应的某个小程序
 
 	}
 )
@@ -33,4 +35,13 @@ func GetUserInfo(ctx context.Context, typeId, openId string) (*User, error) {
 		return i, nil
 	}
 	return nil, nil
+}
+
+func GetUsers(s *pkg.Inquirer[*User]) []User {
+	i := make([]User, 0)
+	k := func(db *gorm.DB) {
+		db.Debug().Preload("User").Find(&i)
+	}
+	s.Query("comment", nil, k)
+	return i
 }

@@ -26,17 +26,17 @@ func (s *Journey) List(c *gin.Context, typ string) ([]model.JourneyDis, error) {
 	return journey, nil
 }
 
-func (t *Journey) Update(id string, model model.JourneyDis) error {
+func (t *Journey) Update(context *gin.Context, id string, model model.JourneyDis) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (t *Journey) Insert(model model.JourneyDis) error {
+func (t *Journey) Insert(context *gin.Context, model model.JourneyDis) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (t *Journey) Delete(id string) error {
+func (t *Journey) Delete(context *gin.Context, id string) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -55,17 +55,17 @@ func (s *Detail) List(c *gin.Context, typ string) ([]model.JourneyPerson, error)
 	panic("implement me")
 }
 
-func (t *Detail) Update(id string, model model.JourneyPerson) error {
+func (t *Detail) Update(context *gin.Context, id string, model model.JourneyPerson) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (t *Detail) Insert(model model.JourneyPerson) error {
+func (t *Detail) Insert(context *gin.Context, model model.JourneyPerson) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (t *Detail) Delete(id string) error {
+func (t *Detail) Delete(context *gin.Context, id string) error {
 	//TODO implement me
 	panic("implement me")
 }

@@ -106,17 +106,17 @@ func (t *Scripts) FindByID(context *gin.Context) (model.Script, error) {
 	//return model.Script{Name: "luiz"}, nil
 }
 
-func (t *Scripts) Update(id string, model model.Script) error {
+func (t *Scripts) Update(context *gin.Context, id string, model model.Script) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (t *Scripts) Insert(model model.Script) error {
+func (t *Scripts) Insert(context *gin.Context, model model.Script) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (t *Scripts) Delete(id string) error {
+func (t *Scripts) Delete(context *gin.Context, id string) error {
 	//TODO implement me
 	panic("implement me")
 }
