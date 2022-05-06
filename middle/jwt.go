@@ -28,6 +28,7 @@ func JWTAuthMiddleware(level int) func(c *gin.Context) {
 					abort(c)
 				}
 			}
+
 			// 将当前请求的username信息保存到请求的上下文c上
 			c.Set(AuthUserKey, mc.Id)
 			c.Next() // 后续的处理函数可以用过c.Get("username")来获取当前请求的用户信息

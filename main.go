@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/gzip"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"log"
@@ -13,6 +14,9 @@ import (
 func init() {
 	d := db.DB[*gorm.DB]{}
 
+	//d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo03902o.mysql.rds.aliyuncs.com:3306)/taihe"}
+
+	//内网
 	d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo0390.mysql.rds.aliyuncs.com:3306)/taihe"}
 
 	d.Initial()
@@ -27,6 +31,7 @@ func main() {
 		M:  new(model.Script),
 		Db: tai,
 	}}
+	t.ListStruct = model.ScriptPub
 
 	j := new(provider.APIHandler[model.JourneyDis])
 	j.Provider = &provider.Journey{}
@@ -52,6 +57,7 @@ func main() {
 	}
 
 	router := gin.Default()
+	router.Use(gzip.Gzip(gzip.DefaultCompression))
 	router.GET("/script", t.List(provider.Mysql))
 	router.GET("/js", j.List(provider.Mysql))
 	router.GET("/js/detail", d.FindByID())
