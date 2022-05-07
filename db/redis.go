@@ -28,6 +28,10 @@ func init() {
 	}
 }
 
+const (
+	openId = "openId"
+)
+
 func GetRedis() *redis.Client {
 	return cli
 }

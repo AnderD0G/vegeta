@@ -1,13 +1,16 @@
 package provider
 
 import (
+	"context"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
-	"time"
+	"vegeta/db"
 	"vegeta/model"
 	"vegeta/pkg"
 )
+
+const openId = "openId"
 
 // JWTGenerator jwt 生成器
 type JWTGenerator[token jwt.Claims] interface {
@@ -29,16 +32,30 @@ type WxToken struct {
 
 func (w WxTokenGen) generate(c *gin.Context) (WxToken, error) {
 	code := c.Query("code")
-	nowTime := time.Now()                    //当前时间
-	expireTime := nowTime.Add(3 * time.Hour) //有效时间
+	redis := db.GetRedis()
 
-	if session, err := pkg.Code2Session(code); err != nil {
+	var (
+		resp   pkg.WxResp
+		result string
+		err    error
+	)
+
+	if resp, err = pkg.Code2Session(code); err != nil {
 		return WxToken{}, err
-	} else {
-		return WxToken{OpenID: session.Openid, StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expireTime.Unix(),
-			Issuer:    "its me"}}, nil
 	}
+
+	if result, err = redis.HGet(context.TODO(), openId, resp.Openid).Result(); err != nil {
+		return WxToken{}, err
+	}
+
+	if result == "" {
+		_, err := redis.HSet(context.TODO(), openId, resp.Openid).Result()
+		if err != nil {
+			return WxToken{}, err
+		}
+	}
+
+	return WxToken{OpenID: resp.Openid, StandardClaims: jwt.StandardClaims{}}, nil
 }
 
 func (w WxTokenGen) save(x WxToken) error {
@@ -48,12 +65,16 @@ func (w WxTokenGen) save(x WxToken) error {
 	}
 
 	w.I.Query(new(model.User).TableName(), nil, k)
+
+	if _, err := db.GetRedis().HSet(context.TODO(), openId, u.Openid).Result(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
 func (w WxTokenGen) get(x WxToken) (string, error) {
-	//TODO implement me
-	panic("implement me")
+	return pkg.GenerateToken(pkg.Claims{Code: x.OpenID, StandardClaims: jwt.StandardClaims{}})
 }
 
 //func SendToken(code, now string) error {
