@@ -67,18 +67,21 @@ func GetJourneyDetailM(id int) (*JourneyPerson, error) {
 	db := db2.GetMysql("1")
 	j := new(JourneyDis)
 
-	sub := db.Model(&Journey{ID: id}).Joins("Shop").Joins("Script")
-	db.Table("(?)as u", sub).Select(fmt.Sprintf("*,@age:= CONCAT('$[0 to ',Scripts__script_player_limit-1,' ]'),JSON_EXTRACT(persons, @age)as personp")).Find(&j)
+	sub := db.Model(&Journey{ID: id}).Joins("Shop").Joins("Scripts")
+	db.Debug().Table("(?)as u", sub).Select(fmt.Sprintf("*,@age:= CONCAT('$[0 to ',Scripts__script_player_limit-1,' ]'),JSON_EXTRACT(persons, @age)as personp")).Find(&j)
 
 	i := new([]User)
 	strings := make([]string, len(j.Persons))
 
+	for k, v := range j.Persons {
+		strings[k] = v.Id
+	}
 	err := copier.Copy(&strings, j.Persons)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = db.Where("uuid IN ?", strings).Find(i).Error; err != nil {
+	if err = db.Debug().Where("openid IN ?", strings).Find(i).Error; err != nil {
 		return nil, err
 	}
 

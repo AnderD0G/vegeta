@@ -74,6 +74,8 @@ func (h *APIHandler[MODEL]) FindByID() gin.HandlerFunc {
 				context.JSON(http.StatusOK, i)
 				return
 			}
+			context.JSON(http.StatusOK, r)
+			return
 		}
 	}
 
