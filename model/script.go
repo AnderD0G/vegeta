@@ -20,6 +20,7 @@ type (
 type (
 	// ScriptBasic journey需要的元素
 	ScriptBasic struct {
+		Uuid           string `json:"uuid" gorm:"column:uuid" valid:"no_empty"`
 		ScriptCoverUrl string `json:"script_cover_url" gorm:"column:script_cover_url"`
 		ScriptName     string `json:"script_name" gorm:"column:script_name"`
 	}

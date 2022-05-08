@@ -14,10 +14,11 @@ import (
 func init() {
 	d := db.DB[*gorm.DB]{}
 
-	//d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo03902o.mysql.rds.aliyuncs.com:3306)/taihe"}
+	//外网
+	d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo03902o.mysql.rds.aliyuncs.com:3306)/taihe"}
 
 	//内网
-	d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo0390.mysql.rds.aliyuncs.com:3306)/taihe"}
+	//d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo0390.mysql.rds.aliyuncs.com:3306)/taihe"}
 
 	d.Initial()
 
@@ -48,7 +49,7 @@ func main() {
 	c.ListStruct = model.CommentsPub
 	c.OneStruct = model.CDetailPub
 
-	l := new(provider.LoginHandler[provider.WxToken])
+	l := new(provider.LoginHandler[pkg.WxToken])
 	l.JWTGenerator = provider.WxTokenGen{
 		Query: new(pkg.Query), I: &pkg.Inquirer[*model.User]{
 			M:  new(model.User),
@@ -58,12 +59,13 @@ func main() {
 
 	router := gin.Default()
 	router.Use(gzip.Gzip(gzip.DefaultCompression))
-	router.GET("/script", t.List(provider.Mysql))
-	router.GET("/js", j.List(provider.Mysql))
+	router.GET("/script", t.List(provider.Mysql, provider.Normal))
+	router.GET("/script/detail", t.List(provider.Mysql, provider.DetailC))
+	router.GET("/js", j.List(provider.Mysql, provider.Normal))
 	router.GET("/js/detail", d.FindByID())
-	router.GET("/comment", c.List(provider.Mysql))
+	router.GET("/comment", c.List(provider.Mysql, provider.Normal))
 	router.GET("/comment/detail", c.FindByID())
-	router.GET("/script/vague", t.List(provider.Es))
+	router.GET("/script/vague", t.List(provider.Es, provider.Normal))
 	router.GET("/login", l.WxMiniLogin())
 	log.Fatal(router.Run(":8081"))
 

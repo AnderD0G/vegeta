@@ -32,7 +32,7 @@ func (s *Comment) FindByID(c *gin.Context) (model.Comment, error) {
 	return comment, nil
 }
 
-func (s *Comment) List(c *gin.Context, typ string) ([]model.Comment, error) {
+func (s *Comment) List(c *gin.Context, db, typ string) ([]model.Comment, error) {
 
 	page := c.DefaultQuery("page", "1")
 	size := c.DefaultQuery("size", "10")

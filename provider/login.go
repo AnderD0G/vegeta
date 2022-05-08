@@ -15,8 +15,7 @@ const openId = "openId"
 // JWTGenerator jwt 生成器
 type JWTGenerator[token jwt.Claims] interface {
 	generate(ctx *gin.Context) (token, error)
-	save(token) error
-	get(token) (string, error)
+	resp(token) (string, error)
 }
 
 // WxTokenGen WxJWT 根据code 生成jwt
@@ -25,56 +24,48 @@ type WxTokenGen struct {
 	I     *pkg.Inquirer[*model.User]
 }
 
-type WxToken struct {
-	OpenID string `json:"openID"`
-	jwt.StandardClaims
-}
-
-func (w WxTokenGen) generate(c *gin.Context) (WxToken, error) {
+func (w WxTokenGen) generate(c *gin.Context) (pkg.WxToken, error) {
 	code := c.Query("code")
-	redis := db.GetRedis()
+	name := c.Query("name")
+	url := c.Query("url")
+
+	//redis := db.GetRedis()
 
 	var (
 		resp   pkg.WxResp
 		result string
 		err    error
+		rdb    = db.GetRedis()
 	)
 
 	if resp, err = pkg.Code2Session(code); err != nil {
-		return WxToken{}, err
+		return pkg.WxToken{}, err
 	}
 
-	if result, err = redis.HGet(context.TODO(), openId, resp.Openid).Result(); err != nil {
-		return WxToken{}, err
+	if result, err = rdb.HGet(context.TODO(), openId, resp.Openid).Result(); err != nil {
+		return pkg.WxToken{}, err
 	}
-
+	//如果结果为空就去数据库中生成
 	if result == "" {
-		_, err := redis.HSet(context.TODO(), openId, resp.Openid).Result()
-		if err != nil {
-			return WxToken{}, err
+
+		u := model.User{}
+		k := func(db *gorm.DB) {
+			user := model.User{
+				UserPub: model.UserPub{NickName: name, AvatarUrl: url},
+				Openid:  resp.Openid,
+			}
+			db.Debug().Where(user).FirstOrCreate(&u)
 		}
+
+		w.I.Query(new(model.User).TableName(), nil, k)
+
 	}
 
-	return WxToken{OpenID: resp.Openid, StandardClaims: jwt.StandardClaims{}}, nil
+	return pkg.WxToken{OpenID: resp.Openid, StandardClaims: jwt.StandardClaims{}}, nil
 }
 
-func (w WxTokenGen) save(x WxToken) error {
-	u := model.User{}
-	k := func(db *gorm.DB) {
-		db.Debug().Where(model.User{Openid: x.OpenID}).FirstOrCreate(&u)
-	}
-
-	w.I.Query(new(model.User).TableName(), nil, k)
-
-	if _, err := db.GetRedis().HSet(context.TODO(), openId, u.Openid).Result(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (w WxTokenGen) get(x WxToken) (string, error) {
-	return pkg.GenerateToken(pkg.Claims{Code: x.OpenID, StandardClaims: jwt.StandardClaims{}})
+func (w WxTokenGen) resp(x pkg.WxToken) (string, error) {
+	return pkg.GenerateToken(x.OpenID)
 }
 
 //func SendToken(code, now string) error {

@@ -17,8 +17,8 @@ type Scripts struct {
 	S           *pkg.Inquirer[*model.Script]
 }
 
-func (s *Scripts) List(c *gin.Context, typ string) ([]model.Script, error) {
-	switch typ {
+func (s *Scripts) List(c *gin.Context, db, typ string) ([]model.Script, error) {
+	switch db {
 	case Es:
 		return s.esList(c)
 	case Mysql:
