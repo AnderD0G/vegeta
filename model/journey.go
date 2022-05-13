@@ -87,6 +87,16 @@ func GetJourneyDetailM(id int) (*JourneyPerson, error) {
 
 	j2 := new(JourneyPerson)
 	j2.Journey = j.Journey
+
+	i2 := new([]Tag)
+	db.Debug().Model(new(Tag)).Where("uuid IN ?", []int(j2.Journey.Scripts.ScriptTag)).Find(i2)
+
+	tags := make([]string, len(*i2))
+	for k, v := range *i2 {
+		tags[k] = v.Value
+	}
+
+	j2.Scripts.Tags = tags
 	j2.Persons = *i
 
 	return j2, nil

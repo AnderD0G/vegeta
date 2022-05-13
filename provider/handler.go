@@ -81,6 +81,16 @@ func (h *APIHandler[MODEL]) FindByID() gin.HandlerFunc {
 
 }
 
+func (h *APIHandler[MODEL]) Insert(a MODEL) gin.HandlerFunc {
+	return func(context *gin.Context) {
+		err := h.Provider.Insert(context, a)
+		if err != nil {
+			context.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+	}
+}
+
 type (
 	LoginHandler[token jwt.Claims] struct {
 		JWTGenerator[token]
@@ -95,9 +105,23 @@ var (
 func (h *LoginHandler[token]) WxMiniLogin() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
-		code := c.Query("code")
+		code := c.Query("open")
 
 		if err := validate.Var(code, "required"); err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		name := c.Query("name")
+
+		if err := validate.Var(name, "required"); err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		url := c.Query("url")
+
+		if err := validate.Var(url, "required,url"); err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -109,7 +133,7 @@ func (h *LoginHandler[token]) WxMiniLogin() gin.HandlerFunc {
 		)
 
 		//first step 根据openId 生成jwt.claims
-		if token, err = h.JWTGenerator.generate(c); err != nil {
+		if token, err = h.JWTGenerator.generate(code, name, url); err != nil {
 			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
@@ -127,9 +151,26 @@ func (h *LoginHandler[token]) WxMiniLogin() gin.HandlerFunc {
 
 }
 
-func Login() gin.HandlerFunc {
+//WxMiniRegister 微信小程序注册 用户调用app.js的时候
+func (h *LoginHandler[token]) WxMiniRegister() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
+		code := c.Query("code")
+
+		if err := validate.Var(code, "required"); err != nil {
+			c.AbortWithStatus(http.StatusUnauthorized)
+			return
+		}
+
+		err, openId := h.JWTGenerator.register(code)
+		if err != nil {
+			return
+		}
+
+		c.Header("openId", openId)
+		c.Status(http.StatusOK)
+		return
 
 	}
+
 }

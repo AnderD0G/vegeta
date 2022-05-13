@@ -15,7 +15,7 @@ func JWTAuthMiddleware(level int) func(c *gin.Context) {
 		return
 	}
 	return func(c *gin.Context) {
-		authHeader := c.Request.Header.Get("Authorization")
+		authHeader := c.Request.Header.Get("token")
 		code := c.Request.Header.Get("code")
 		if code == "" {
 			if authHeader == "" {

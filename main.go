@@ -34,6 +34,15 @@ func main() {
 	}}
 	t.ListStruct = model.ScriptPub
 
+	p := new(provider.APIHandler[model.Reply])
+	p.Provider = &provider.Reply{
+		Query: new(pkg.Query),
+		I: &pkg.Inquirer[*model.User]{
+			M:  new(model.User),
+			Db: tai,
+		},
+	}
+
 	j := new(provider.APIHandler[model.JourneyDis])
 	j.Provider = &provider.Journey{}
 
@@ -67,6 +76,8 @@ func main() {
 	router.GET("/comment/detail", c.FindByID())
 	router.GET("/script/vague", t.List(provider.Es, provider.Normal))
 	router.GET("/login", l.WxMiniLogin())
+	router.GET("/register", l.WxMiniRegister())
+	router.POST("/reply", p.Insert(model.Reply{}))
 	log.Fatal(router.Run(":8081"))
 
 }

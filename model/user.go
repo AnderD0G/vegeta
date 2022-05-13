@@ -1,9 +1,6 @@
 package model
 
 import (
-	"context"
-	"gorm.io/gorm"
-	db2 "vegeta/db"
 	"vegeta/pkg"
 )
 
@@ -16,7 +13,7 @@ type (
 	}
 	User struct {
 		UserPub
-		Openid     string `json:"open_id" gorm:"column:openid"`          // 用户唯一标识
+		Openid     string `json:"openid" gorm:"column:openid"`           // 用户唯一标识
 		SessionKey string `json:"session_key" gorm:"column:session_key"` // 会话密钥
 		TypeId     string `json:"type_id" gorm:"column:typeid"`          //  对应的某个小程序
 
@@ -27,21 +24,9 @@ func (m *User) TableName() string {
 	return "user"
 }
 
-func GetUserInfo(ctx context.Context, typeId, openId string) (*User, error) {
-	db := db2.GetMysql("1")
-	i := new(User)
-	affected := db.First(i, "typeid = ? AND openid = ?", typeId, openId).RowsAffected
-	if affected == 1 {
-		return i, nil
-	}
-	return nil, nil
-}
-
 func GetUsers(s *pkg.Inquirer[*User]) []User {
 	i := make([]User, 0)
-	k := func(db *gorm.DB) {
-		db.Debug().Preload("User").Find(&i)
-	}
-	s.Query("comment", nil, k)
+	s.Query(new(User).TableName(), &i)
+
 	return i
 }
