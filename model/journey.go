@@ -41,6 +41,7 @@ type Journey struct {
 	Owner    string  `json:"owner" gorm:"column:owner"`
 	ShopID   string  `json:"shop_id" gorm:"column:shop_id"`
 	Status   int     `json:"status" gorm:"column:status"` // 1:进行中 2:已开始 3:已结束
+	Price    float64 `json:"price" gorm:"column:price"`
 }
 
 func (m *Journey) TableName() string {
