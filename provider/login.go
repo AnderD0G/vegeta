@@ -20,7 +20,7 @@ type JWTGenerator[token jwt.Claims] interface {
 // WxTokenGen WxJWT 根据code 生成jwt
 type WxTokenGen struct {
 	Query *pkg.Query
-	I     *pkg.Inquirer[*model.User]
+	I     *pkg.Inquirer
 }
 
 func (w WxTokenGen) generate(openId, name, url string) (pkg.WxToken, error) {

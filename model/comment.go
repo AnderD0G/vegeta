@@ -48,7 +48,7 @@ func (m *Comment) TableName() string {
 	return "comment"
 }
 
-func GetComments(s *pkg.Inquirer[*Comment]) []Comment {
+func GetComments(s *pkg.Inquirer) []Comment {
 	i := make([]Comment, 0)
 	k := func(db *gorm.DB) {
 		db.Debug().Preload("User").Find(&i)
@@ -57,7 +57,7 @@ func GetComments(s *pkg.Inquirer[*Comment]) []Comment {
 	return i
 }
 
-func GetComment(s *pkg.Inquirer[*Comment]) Comment {
+func GetComment(s *pkg.Inquirer) Comment {
 	i := Comment{}
 	k := func(db *gorm.DB) {
 		db.Debug().Preload("Reply.User").Preload("User").Preload("Reply.ReplyUser").Find(&i)

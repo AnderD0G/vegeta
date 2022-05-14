@@ -28,7 +28,7 @@ func main() {
 	tai := db.GetMysql("1")
 
 	t := new(provider.APIHandler[model.Script])
-	t.Provider = &provider.Scripts{QueryMap: new(pkg.Query), S: &pkg.Inquirer[*model.Script]{
+	t.Provider = &provider.Scripts{QueryMap: new(pkg.Query), S: &pkg.Inquirer{
 		M:  new(model.Script),
 		Db: tai,
 	}}
@@ -37,20 +37,26 @@ func main() {
 	p := new(provider.APIHandler[model.Reply])
 	p.Provider = &provider.Reply{
 		Query: new(pkg.Query),
-		I: &pkg.Inquirer[*model.User]{
+		I: &pkg.Inquirer{
 			M:  new(model.User),
 			Db: tai,
 		},
 	}
 
 	j := new(provider.APIHandler[model.JourneyDis])
-	j.Provider = &provider.Journey{}
+	j.Provider = &provider.Journey{
+		Query: new(pkg.Query),
+		I: &pkg.Inquirer{
+			M:  new(model.Journey),
+			Db: tai,
+		},
+	}
 
 	d := new(provider.APIHandler[model.JourneyPerson])
 	d.Provider = &provider.Detail{}
 
 	c := new(provider.APIHandler[model.Comment])
-	c.Provider = &provider.Comment{Query: new(pkg.Query), I: &pkg.Inquirer[*model.Comment]{
+	c.Provider = &provider.Comment{Query: new(pkg.Query), I: &pkg.Inquirer{
 		M:  new(model.Comment),
 		Db: tai,
 	},
@@ -60,7 +66,7 @@ func main() {
 
 	l := new(provider.LoginHandler[pkg.WxToken])
 	l.JWTGenerator = provider.WxTokenGen{
-		Query: new(pkg.Query), I: &pkg.Inquirer[*model.User]{
+		Query: new(pkg.Query), I: &pkg.Inquirer{
 			M:  new(model.User),
 			Db: tai,
 		},

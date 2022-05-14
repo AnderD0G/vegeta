@@ -6,7 +6,10 @@ import (
 	"vegeta/pkg"
 )
 
-type Journey struct{}
+type Journey struct {
+	Query *pkg.Query
+	I     *pkg.Inquirer
+}
 
 type Detail struct{}
 
@@ -21,9 +24,24 @@ func (s *Journey) List(c *gin.Context, db, typ string) ([]model.JourneyDis, erro
 	long := c.DefaultQuery("long", "")
 	lat := c.DefaultQuery("lat", "")
 
-	journey := model.GetJourney(long, lat)
+	page := c.DefaultQuery("page", "1")
+	size := c.DefaultQuery("size", "10")
+	query := c.DefaultQuery("query", "")
 
-	return journey, nil
+	s.Query.Condition = query
+	s.Query.Page = pkg.Ati(page)
+	s.Query.Size = pkg.Ati(size)
+
+	s.I.InjectParam(s.Query)
+	s.I.ParseStruct()
+
+	if err := s.I.ParseQuery(); err != nil {
+		return nil, err
+	}
+	//journey := model.GetJourney(long, lat)
+
+	n := model.GetJourneyN(long, lat, s.I)
+	return n, nil
 }
 
 func (t *Journey) Update(context *gin.Context, id string, model model.JourneyDis) error {

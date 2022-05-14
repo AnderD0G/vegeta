@@ -10,7 +10,7 @@ import (
 
 type Reply struct {
 	Query *pkg.Query
-	I     *pkg.Inquirer[*model.User]
+	I     *pkg.Inquirer
 }
 
 func (r Reply) FindByID(context *gin.Context) (model.Reply, error) {

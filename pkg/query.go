@@ -37,7 +37,7 @@ type (
 	}
 )
 
-type Inquirer[T any] struct {
+type Inquirer struct {
 	M          interface{}
 	N          TypeMap
 	Db         *gorm.DB
@@ -46,7 +46,7 @@ type Inquirer[T any] struct {
 	Page, Size int
 }
 
-func (k *Inquirer[T]) ParseQuery() error {
+func (k *Inquirer) ParseQuery() error {
 	c := k.condition
 	m := make(map[string]RuleType)
 	k.QueryMap = m
@@ -115,13 +115,13 @@ func (k *Inquirer[T]) ParseQuery() error {
 	return nil
 }
 
-func (s *Inquirer[T]) InjectParam(queryMap *Query) {
+func (s *Inquirer) InjectParam(queryMap *Query) {
 	s.Page = queryMap.Page
 	s.condition = queryMap.Condition
 	s.Size = queryMap.Size
 }
 
-func (s *Inquirer[T]) parseStruct() {
+func (s *Inquirer) parseStruct() {
 
 	if s.N == nil {
 		s.N = make(TypeMap)
@@ -160,7 +160,7 @@ func (s *Inquirer[T]) parseStruct() {
 
 	return
 }
-func (s *Inquirer[T]) ParseStruct() {
+func (s *Inquirer) ParseStruct() {
 	if s.N == nil {
 		ctxLogger.FInfo(nil, "first", zap.String("which", fmt.Sprintf("%T", s)))
 		s.parseStruct()
@@ -189,8 +189,37 @@ func processJsonArr(pair ...string) (string, bool) {
 	return value, true
 }
 
-func (s *Inquirer[T]) Query(table string, t interface{}, f ...func(d *gorm.DB)) {
+func (s *Inquirer) Query(table string, t interface{}, f ...func(d *gorm.DB)) {
 	db := s.Db.Table(table)
+	limit := s.Size
+	page := s.Page
+
+	for k, v := range s.QueryMap {
+		if v.Rule == Normal {
+			db = db.Where(fmt.Sprintf("%v %v ?", k, v.Comparator), v.Value[0])
+		}
+		if v.Rule == JsonArray {
+			db = db.Where(v.Value[0])
+		}
+		if v.Rule == Array {
+			db = db.Where(fmt.Sprintf("%v IN ?", k), v.Value)
+		}
+	}
+
+	if limit > 0 {
+		db = db.Limit(limit).Offset((page - 1) * limit)
+	}
+
+	if len(f) == 1 {
+		f[0](db)
+		return
+	}
+
+	db.Debug().Find(t)
+}
+
+func (s *Inquirer) MQuery(a interface{}, t interface{}, f ...func(d *gorm.DB)) {
+	db := s.Db.Model(a)
 	limit := s.Size
 	page := s.Page
 

@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jinzhu/copier"
+	"gorm.io/gorm"
 	db2 "vegeta/db"
+	"vegeta/pkg"
 )
 
 type (
@@ -56,6 +58,17 @@ func GetJourney(long, lat string) []JourneyDis {
 	db.Table("(?)as u", sub).Select(fmt.Sprintf("*,round(st_distance_sphere(point(%v,%v),point(Shop__longtitude,Shop__latitude))) dis,@age:= CONCAT('$[0 to ',Scripts__script_player_limit-1,' ]'),JSON_EXTRACT(persons, @age)as personp", long, lat)).Order("dis asc").Find(&j)
 
 	return j
+}
+func GetJourneyN(long, lat string, s *pkg.Inquirer) []JourneyDis {
+	j := make([]JourneyDis, 0)
+	dbs := db2.GetMysql("1")
+	k := func(db *gorm.DB) {
+		db.Joins("Shop").Joins("Scripts").Where("status = ?", 1)
+		dbs.Table("(?)as u", db).Select(fmt.Sprintf("*,round(st_distance_sphere(point(%v,%v),point(Shop__longtitude,Shop__latitude))) dis,@age:= CONCAT('$[0 to ',Scripts__script_player_limit-1,' ]'),JSON_EXTRACT(persons, @age)as personp", long, lat)).Order("dis asc").Find(&j)
+	}
+	s.MQuery(new(Journey), nil, k)
+	return j
+
 }
 
 type JourneyPerson struct {

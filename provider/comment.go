@@ -8,7 +8,7 @@ import (
 
 type Comment struct {
 	Query *pkg.Query
-	I     *pkg.Inquirer[*model.Comment]
+	I     *pkg.Inquirer
 }
 
 func (s *Comment) FindByID(c *gin.Context) (model.Comment, error) {

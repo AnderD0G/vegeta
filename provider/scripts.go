@@ -14,7 +14,7 @@ import (
 type Scripts struct {
 	QueryMap    *pkg.Query
 	scriptModel *[]model.Script
-	S           *pkg.Inquirer[*model.Script]
+	S           *pkg.Inquirer
 }
 
 func (s *Scripts) List(c *gin.Context, db, typ string) ([]model.Script, error) {

@@ -24,7 +24,7 @@ func (m *User) TableName() string {
 	return "user"
 }
 
-func GetUsers(s *pkg.Inquirer[*User]) []User {
+func GetUsers(s *pkg.Inquirer) []User {
 	i := make([]User, 0)
 	s.Query(new(User).TableName(), &i)
 
