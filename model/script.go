@@ -33,7 +33,7 @@ type (
 
 	Script struct {
 		ScriptPic
-		ScriptTag             intSlice `json:"-" gorm:"column:script_tag" type:"JsonArray"`
+		ScriptTag             intSlice `json:"script_tag" gorm:"column:script_tag" type:"JsonArray"`
 		ScriptScore           float64  `json:"script_score" gorm:"column:script_score"`
 		GroupDuration         int      `json:"group_duration" gorm:"column:group_duration"`
 		ScriptTextContext     string   `json:"script_text_context" gorm:"column:script_text_context"`

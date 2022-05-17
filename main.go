@@ -15,10 +15,10 @@ func init() {
 	d := db.DB[*gorm.DB]{}
 
 	//外网
-	d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo03902o.mysql.rds.aliyuncs.com:3306)/taihe"}
+	//d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo03902o.mysql.rds.aliyuncs.com:3306)/taihe"}
 
 	//内网
-	//d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo0390.mysql.rds.aliyuncs.com:3306)/taihe"}
+	d.Provider = &db.MysqlPro{Address: "super:Caoxinguan2022@tcp(rm-bp1r6329yn2fo0390.mysql.rds.aliyuncs.com:3306)/taihe"}
 
 	d.Initial()
 
@@ -62,12 +62,20 @@ func main() {
 	},
 	}
 	c.ListStruct = model.CommentsPub
-	c.OneStruct = model.CDetailPub
 
 	l := new(provider.LoginHandler[pkg.WxToken])
 	l.JWTGenerator = provider.WxTokenGen{
 		Query: new(pkg.Query), I: &pkg.Inquirer{
 			M:  new(model.User),
+			Db: tai,
+		},
+	}
+
+	ca := new(provider.APIHandler[model.Category])
+	ca.Provider = &provider.Category{
+		Query: new(pkg.Query),
+		I: &pkg.Inquirer{
+			M:  new(model.Category),
 			Db: tai,
 		},
 	}
@@ -83,6 +91,7 @@ func main() {
 	router.GET("/script/vague", t.List(provider.Es, provider.Normal))
 	router.GET("/login", l.WxMiniLogin())
 	router.GET("/register", l.WxMiniRegister())
+	router.GET("/category", ca.List(provider.Mysql, provider.Normal))
 	router.POST("/reply", p.Insert(model.Reply{}))
 	log.Fatal(router.Run(":8081"))
 
