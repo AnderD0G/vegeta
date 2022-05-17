@@ -30,7 +30,7 @@ type (
 	APIHandler[MODEL any] struct {
 		Provider   Provider[MODEL]
 		ListStruct func(new *[]MODEL) (error, interface{})
-		OneStruct  func(new *[]MODEL) (error, interface{})
+		OneStruct  func(new *MODEL) (error, interface{})
 	}
 )
 
