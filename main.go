@@ -93,6 +93,7 @@ func main() {
 	router.GET("/register", l.WxMiniRegister())
 	router.GET("/category", ca.List(provider.Mysql, provider.Normal))
 	router.POST("/reply", p.Insert(model.Reply{}))
+
 	log.Fatal(router.Run(":8081"))
 
 }
